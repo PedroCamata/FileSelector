@@ -58,11 +58,10 @@ public class Program {
 		JTextArea textArea = new JTextArea();
 		scrollPane.setViewportView(textArea);
 		
-		JButton button = new JButton("Buscar");
+		JButton button = new JButton("Search and Copy");
 		button.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// Evento ao clicar botão
 				String msg = SelectAndFind.FindFiles(folder, textArea.getText());
 				JOptionPane.showMessageDialog(null, msg);
 			}
@@ -70,13 +69,13 @@ public class Program {
 		button.setBounds(10, 251, 416, 32);
 		frmFileSelector.getContentPane().add(button);
 		
-		JLabel lblPastaSelecionada = new JLabel("Nenhuma pasta selecionada");
+		JLabel lblPastaSelecionada = new JLabel("No folder selected");
 		lblPastaSelecionada.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblPastaSelecionada.setBounds(178, 10, 248, 32);
 		frmFileSelector.getContentPane().add(lblPastaSelecionada);
 		
 		
-		JButton btnPasta = new JButton("Selecionar Pasta");
+		JButton btnPasta = new JButton("Select Folder");
 		btnPasta.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		btnPasta.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -93,14 +92,8 @@ public class Program {
 		btnPasta.setBounds(10, 10, 158, 32);
 		frmFileSelector.getContentPane().add(btnPasta);
 		
-		
-		
 		JLabel lblMadeByPedro = new JLabel("Made by Pedro Camata Andreon(github.com/PedroCamata)");
 		lblMadeByPedro.setBounds(12, 296, 414, 16);
 		frmFileSelector.getContentPane().add(lblMadeByPedro);
-		
-		
-		
-		
 	}
 }

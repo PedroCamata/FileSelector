@@ -15,41 +15,57 @@ public class SelectAndFind {
 
 	static List<File> foundedFiles;
 
-	public static final String FOLDER_NAME = "SELECIONADAS";
+	public static final String FOLDER_FILE_SELECTED = "SELECTED";
 
 	public static String FindFiles(File folder, String files) {
 
 		masterFolder = folder;
 		foundedFiles = new ArrayList<File>();
-		
+
 		if (!folder.exists()) {
-			return "ERRO: Pasta não existe"; // Folder doesn't exists
+			return "ERROR: Folder doesn't exists";
 		}
 
+//		if (new File(folder.getAbsolutePath() + File.separator + FOLDER_FILE_SELECTED).exists())
+//		{
+//			return "ERROR: Folder " + FOLDER_FILE_SELECTED + " already exists in this folder";
+//		}
+
 		if (files.isEmpty()) {
-			return "ERRO: Campo de Texto não foi preenchido"; // Text field wasn't filled
+			return "ERROR: Text field is empty";
 		}
 
 		filesValidate(files);
 
 		if (!filenames.isEmpty()) {
-			return "ERRO: Algum(s) arquivo na lista não foi encontrado"; // Some file(s) wasn't found
+
+			String filesNotFound = "";
+			for (int i = 0; i < filenames.size(); i++) {
+				filesNotFound += filenames.get(i) + "\n";
+			}
+
+			return "ERROR: File(s) not found\n\n" + filesNotFound;
 		}
 
-		if (copyFileProcess()) {
-			return "SUCESSO: Arquivos encontrados e copiados para pasta!"; // Success
-		} else {
-			return "ERRO: Algo deu errado"; // Something is wrong
+		if (!copyFileProcess()) {
+			return "ERROR: Something is wrong";
 		}
+
+		return "SUCCESS: Files were found and copied into the folder \"" + FOLDER_FILE_SELECTED + "\"";
 	}
 
 	private static void filesValidate(String filesString) {
+
+		// Convert "," to "\n"
+		filesString = filesString.replace(", ", ",").replace(" ,", ",").replace(",", "\n");
 
 		String[] fileArray = filesString.split("\n");
 		filenames = new ArrayList<String>();
 		// Transform to List
 		for (int i = 0; i < fileArray.length; i++) {
-			filenames.add(fileArray[i]);
+			if (fileArray[i].length() > 0) {
+				filenames.add(fileArray[i]);
+			}
 		}
 
 		findFiles(masterFolder);
@@ -72,7 +88,7 @@ public class SelectAndFind {
 				if (filenames.isEmpty()) {
 					return true;
 				}
-				findFiles(new File(folder.getAbsolutePath() + "/" + directories[i]));
+				findFiles(new File(folder.getAbsolutePath() + File.separator + directories[i]));
 			}
 		}
 
@@ -88,23 +104,27 @@ public class SelectAndFind {
 			return true;
 		}
 
-		List<File> fileArray = new ArrayList<File>();
 		for (int i = 0; i < fileStringArray.length; i++) {
-			fileArray.add(new File(folder.getAbsolutePath() + "/" + fileStringArray[i]));
-		}
-
-		for (int i = 0; i < fileArray.size(); i++) {
-			for (int j = 0; j < filenames.size(); j++) {
-				if (fileArray.get(i).isFile() && fileArray.get(i).getName().toUpperCase().equals(filenames.get(j).toUpperCase())) {
-					// File has been found
-					foundedFiles.add(fileArray.get(i));
-					filenames.remove(j);
-					break;
+			File tempFile = new File(folder.getAbsolutePath() + File.separator + fileStringArray[i]);
+			if (tempFile.isFile()) {
+				String tempFileName = removeFileNameExtension(tempFile.getName());
+				for (int j = 0; j < filenames.size(); j++) {
+					if ((filenames.get(j).contains(".") && tempFile.getName().toUpperCase().equals(filenames.get(j).toUpperCase()))
+					|| (!filenames.get(j).contains(".") && tempFileName.equals(removeFileNameExtension(filenames.get(j))))) {
+						// File has been found
+						foundedFiles.add(tempFile);
+						filenames.remove(j);
+						break;
+					}
 				}
 			}
 		}
 
 		return true;
+	}
+
+	private static String removeFileNameExtension(String fileName) {
+		return fileName.replaceFirst("[.][^.]+$", "").toUpperCase();
 	}
 
 	private static boolean copyFileProcess() {
@@ -120,12 +140,13 @@ public class SelectAndFind {
 
 	private static void copyFile(File source) throws IOException {
 
-		File folder = new File(masterFolder.getPath() + "/" + FOLDER_NAME + "/");
+		File folder = new File(masterFolder.getPath() + File.separator + FOLDER_FILE_SELECTED + File.separator);
 		if (!folder.exists()) {
 			folder.mkdirs();
 		}
 
-		File filepath = new File(masterFolder.getPath() + "/" + FOLDER_NAME + "/" + source.getName());
+		File filepath = new File(
+				masterFolder.getPath() + File.separator + FOLDER_FILE_SELECTED + File.separator + source.getName());
 		Files.copy(source.toPath(), filepath.toPath());
 	}
 
